@@ -1,9 +1,14 @@
-from selenium import webdriver
-from selenium.webdriver import ActionChains
-from selenium.webdriver.common.keys import Keys
 import time
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
-driver_path = 'E:\Documentos\Selenium\chromedriver.exe'
-driver = webdriver.Chrome(driver_path)
-#driver.get('https://www.nba.com/games?date=2022-03-26')
+url = 'https://www.nba.com/games'
+page = requests.get(url)
+
+contenido = page.content
+
+soup = BeautifulSoup(contenido)
+
+with open("content.txt", "w") as f:
+    f.write(str(soup.prettify()))
