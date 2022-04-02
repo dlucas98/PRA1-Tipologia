@@ -1,9 +1,16 @@
 import time
 import pandas as pd
 import requests
+import datetime
 from bs4 import BeautifulSoup
 
-url = 'https://www.basketball-reference.com/leagues/NBA_2022_games-october.html'
+date = datetime.date(2021, 10, 19)
+incrdate = datetime.timedelta(1)
+finish_date = datetime.date(2022, 6, 30)
+
+# while date<finish_date:
+
+url = 'https://www.basketball-reference.com/boxscores/index.fcgi?month='+ str(date.month) +'&day='+ str(date.day) +'&year='+ str(date.year)
 page = requests.get(url)
 soup = BeautifulSoup(page.text)
 
@@ -11,12 +18,13 @@ games = []
 tds = soup.find_all("td")
 
 for td in tds:
-    a = td.next_element
+    a = td.next_element.next_element
     if a.name == 'a':
         href = a['href'] 
         if (href.find("/boxscores") != -1):
-            #print(href) #Para ver los partidos que se han cogido
+            print(href) #Para ver los partidos que se han cogido
             games.append(href)
+
 jugadores = []     
 for i in range(len(games)):            
     partido = 'https://www.basketball-reference.com' + games[i]
@@ -101,3 +109,33 @@ for i in range(len(estadisticas)):
         (m, s) = estadisticas.iloc[i,2].split(':')
         result = int(m) + int(s)/60
         estadisticas.iloc[i,2]=round(result)
+    else:
+        estadisticas.iloc[i,2]=int(estadisticas.iloc[i,2])
+
+# estadisticas.groupby(by=['Nombre']).sum()
+
+with open("content.txt", "w") as f:
+    f.write(str(estadisticas))
+
+# Agrupamos los datos por nombr de jugador y equipo
+estadisticas_agrupadas = estadisticas.groupby(['Nombre','Equipo']).sum()
+
+
+with open("contentasa.txt", "w") as f:
+    f.write(str(estadisticas_agrupadas))
+
+def calculadora_per(df1):
+    pers = []
+    for i in range(len(df1)):
+        if (df1.iloc[i,2]!=0):
+            per =  (df1.iloc[i,3] * 85.910 + df1.iloc[i,12] * 53.897 + df1.iloc[i,5] * 51.757 + df1.iloc[i,7] *46.845 + df1.iloc[i,13] * 39.190 
+                + df1.iloc[i,9] * 39.190 + df1.iloc[i,11] * 34.677 + df1.iloc[i,10] * 14.707 
+                - df1.iloc[i,15] * 17.174 - (df1.iloc[i,8] - df1.iloc[i,7]) * 20.091 - (df1.iloc[i,4] - df1.iloc[i,3]) * 39.190 - df1.iloc[i,14] * 53.897 ) * (1/df1.iloc[i,2]) 
+            pers.append(round(per))
+        else:
+            pers.append(0)
+    df = pd.DataFrame(pers,columns = ['PER'])
+    return pd.concat([df1, df], axis=1,)
+
+est_per = calculadora_per(estadisticas)
+print(est_per)
