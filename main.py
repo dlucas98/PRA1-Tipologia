@@ -12,14 +12,15 @@ def main():
     parser.add_argument("-o", "--output", help="Output file name", default=output_file)
     args = parser.parse_args()
 
-    startDate = datetime.strptime(args.startDate, "%d-%m-%Y") if args.startDate else None
-    endDate = datetime.strptime(args.endDate, "%d-%m-%Y") if args.endDate else None
+    start_date = datetime.strptime(args.startDate, "%d-%m-%Y") if args.startDate else None
+    end_date = datetime.strptime(args.endDate, "%d-%m-%Y") if args.endDate else None
     output= args.output
 
-    scraper = brScraper(startDate, endDate, output)
+    scraper = brScraper(start_date, end_date, output)
 
     scraper.scrape()
 
 
 if __name__ == "__main__":
     main()
+    

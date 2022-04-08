@@ -26,13 +26,11 @@ class brScraper():
             if a.name == 'a':
                 href = a['href'] 
                 if (href.find("/boxscores") != -1):
-                    #print(href) #Para ver los partidos que se han cogido
                     games.append(href)
-                    # return href
         return(games)
-    
+
     def __obtener_estadisticas(self,game):
-        jugadores = []               
+        jugadores = []
         partido = 'https://www.basketball-reference.com' + game
         bruto = requests.get(partido)
         todo = bruto.content
@@ -156,4 +154,3 @@ class brScraper():
 
         print(str(dfout))
         self.__exportar_csv(dfout)
-
