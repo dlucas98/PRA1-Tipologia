@@ -6,14 +6,13 @@ from bs4 import BeautifulSoup
 
 class brScraper():
 
-    def __init__(self, startDate, endDate, output):
+    def __init__(self, start_date, end_date, output):
         self.url = 'https://www.basketball-reference.com'
         self.games = []
         self.players = []
-        self.startDate = startDate
-        self.endDate = endDate
+        self.start_date = start_date
+        self.end_date = end_date
         self.output=output
-        
         
     def __buscar_partidos(self, date):
         games = []
@@ -84,9 +83,8 @@ class brScraper():
                                 'PTS': int(pts)
                             }
                             jugadores.append(datos_jugador)
-
         return jugadores
-      
+
     def __convertir_minutos(self,df):
         for i in range(len(df)):
             if(len(df.iloc[i,2].split(':'))==2):
@@ -115,11 +113,11 @@ class brScraper():
         df1.to_csv(self.output+'.csv', index=None, mode='a')
     
     def scrape(self):
-        print ('Scraping de las estadísticas de los jugadores de la NBA en la página' + self.url + ' entre el día: ' + str(self.startDate) + ' - ' + str(self.endDate))
+        print ('Scraping de las estadísticas de los jugadores de la NBA en la página' + self.url + ' entre el día: ' + str(self.start_date) + ' - ' + str(self.end_date))
         
-        date = self.startDate
+        date = self.start_date
 
-        while date <= self.endDate:
+        while date <= self.end_date:
             self.games.append(self.__buscar_partidos(date))
             date = date + datetime.timedelta(days=1)
         
