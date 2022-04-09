@@ -1,4 +1,5 @@
 import datetime
+from socket import timeout
 import time
 import pandas as pd
 import requests
@@ -12,13 +13,34 @@ class brScraper():
         self.players = []
         self.start_date = start_date
         self.end_date = end_date
-        self.output=output
-        
+        self.output = output
+        self.page = None
+
+    def __obtener_pagina(self, url):
+        try:
+            # Se modifican el user agent y otras cabeceras HTTP para evitar ser bloqueado por el sitio
+            headers = {
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+                "Accept-Encoding": "gzip, deflate, sdch, br",
+                "Accept-Language": "en-US,en;q=0.8,es;q=0.6",
+                "Cache-Control": "no-cache",
+                "dnt": "1",
+                "Pragma": "no-cache",
+                "Upgrade-Insecure-Requests": "1",
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+            }
+            # Se espera hasta 10 segundos para tener en cuenta que no se haya caido la página
+            self.page = requests.get(url, headers=headers, timeout=10)
+        except requests.exceptions.Timeout:
+            pass
+
     def __buscar_partidos(self, date):
         games = []
         url = 'https://www.basketball-reference.com/boxscores/index.fcgi?month='+ str(date.month) +'&day='+ str(date.day) +'&year='+ str(date.year)
-        page = requests.get(url)
-        soup = BeautifulSoup(page.text)
+
+        self.__obtener_pagina(url)
+
+        soup = BeautifulSoup(self.page.text)
         tds = soup.find_all("td")
         for td in tds:
             a = td.next_element.next_element
