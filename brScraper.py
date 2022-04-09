@@ -6,8 +6,9 @@ import requests
 from bs4 import BeautifulSoup
 
 class brScraper():
-
+    """Clase encargada de realizar el scraping de la página de basketball-reference.com"""
     def __init__(self, start_date, end_date, output):
+        """Inicializa el scraper con las fechas de inicio y fin, y el nombre del archivo de salida"""	
         self.url = 'https://www.basketball-reference.com'
         self.games = []
         self.players = []
@@ -17,6 +18,7 @@ class brScraper():
         self.page = None
 
     def __obtener_pagina(self, url):
+        """Obtiene la página web de basketball-reference.com con la url pasada como parámetro"""	
         try:
             # Se modifican el user agent y otras cabeceras HTTP para evitar ser bloqueado por el sitio
             headers = {
@@ -35,6 +37,7 @@ class brScraper():
             pass
 
     def __buscar_partidos(self, date):
+        """Busca los partidos de basketball-reference.com en una fecha dada"""
         games = []
         url = 'https://www.basketball-reference.com/boxscores/index.fcgi?month='+ str(date.month) +'&day='+ str(date.day) +'&year='+ str(date.year)
 
@@ -51,6 +54,7 @@ class brScraper():
         return(games)
 
     def __obtener_estadisticas(self,game):
+        """Obtiene las estadísticas de un partido de basketball-reference.com"""
         jugadores = []
         partido = 'https://www.basketball-reference.com' + game
         bruto = requests.get(partido)
@@ -107,7 +111,8 @@ class brScraper():
                             jugadores.append(datos_jugador)
         return jugadores
 
-    def __convertir_minutos(self,df):
+    def __convertir_minutos(self, df):
+        """Convierte el tiempo de juego a minutos"""
         for i in range(len(df)):
             if(len(df.iloc[i,2].split(':'))==2):
                 (m, s) = df.iloc[i,2].split(':')
@@ -119,12 +124,13 @@ class brScraper():
         return df
 
     def __calculadora_per(self, df1):
+        """Calcula el PER de todo un dataframe"""
         pers = []
         for i in range(len(df1)):
             if (df1.iloc[i,2]!=0):
-                per =  (df1.iloc[i,3] * 85.910 + df1.iloc[i,12] * 53.897 + df1.iloc[i,5] * 51.757 + df1.iloc[i,7] *46.845 + df1.iloc[i,13] * 39.190 
+                per =  (df1.iloc[i,3] * 85.910 + df1.iloc[i,12] * 53.897 + df1.iloc[i,5] * 51.757 + df1.iloc[i,7] *46.845 + df1.iloc[i,13] * 39.190
                     + df1.iloc[i,9] * 39.190 + df1.iloc[i,11] * 34.677 + df1.iloc[i,10] * 14.707 
-                    - df1.iloc[i,15] * 17.174 - (df1.iloc[i,8] - df1.iloc[i,7]) * 20.091 - (df1.iloc[i,4] - df1.iloc[i,3]) * 39.190 - df1.iloc[i,14] * 53.897 ) * (1/df1.iloc[i,2]) 
+                    - df1.iloc[i,15] * 17.174 - (df1.iloc[i,8] - df1.iloc[i,7]) * 20.091 - (df1.iloc[i,4] - df1.iloc[i,3]) * 39.190 - df1.iloc[i,14] * 53.897 ) * (1/df1.iloc[i,2])
                 pers.append(round(per,2))
             else:
                 pers.append(0)
@@ -132,9 +138,11 @@ class brScraper():
         return pd.concat([df1, df2], axis=1,)
     
     def __exportar_csv(self,df1):
+        """Exporta un dataframe a un archivo csv"""
         df1.to_csv(self.output+'.csv', index=None, mode='a')
     
     def scrape(self):
+        """Realiza el scraping de basketball-reference.com completo"""
         print ('Scraping de las estadísticas de los jugadores de la NBA en la página' + self.url + ' entre el día: ' + str(self.start_date) + ' - ' + str(self.end_date))
         
         date = self.start_date
