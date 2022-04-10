@@ -88,7 +88,6 @@ class brScraper():
                             tov = cells[16].text
                             pf = cells[17].text
                             pts = cells[18].text
-                            plus_minus = cells[19].text
                             datos_jugador = {
                                 'Nombre': jugador,
                                 'Equipo': nombre_equipo,
@@ -180,5 +179,4 @@ class brScraper():
         # Calculamos el PER
         dfout = self.__calculadora_per(dfout)
 
-        print(str(dfout))
         self.__exportar_csv(dfout)
